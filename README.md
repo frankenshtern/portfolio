@@ -3,4 +3,4 @@
 
 ## Links
 
-- [Сайт-визитка Whiskas](https://ui5b.github.io/works/business-card-whiskas)
+- [Сайт-визитка Whiskas](https://ui5b.github.io/my-work/business-card-whiskas)
