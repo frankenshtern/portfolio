@@ -1,1 +1,695 @@
-import Swiper from"./swiper-bundle.min.js";const hrefCorrection=()=>{const e=Array.from(document.querySelectorAll("a[href]")).filter(e=>{const t=e.getAttribute("href");return!(t.includes("http")||t.includes("tel")||t.includes("mailto")||e.hasAttribute("id"))});hrefCorrect(e)},hrefCorrect=e=>{const t=document.location.href,r=(e,t)=>{const r=t.getAttribute("href");t.setAttribute("href",e+r)};if(t.includes("src")){const t="/src";e.forEach(e=>{r(t,e)})}if(t.includes("platform")){const t="/platform/fregat";e.forEach(e=>{r(t,e)})}};hrefCorrection();const linksHrefCorrect=e=>{let t=e,r="";return console.log(t),document.location.href.includes("src")?(r="/src",document.location.href.includes("platform")?void(r="/platform/fregat"):r+t):r+t};function mobileMenu(){const e=document.querySelector("button.header__button"),t=document.querySelector("nav.header__menu"),r=document.querySelector(".header__links"),n=document.querySelector(".header__wrapper"),a=document.querySelector(".header"),l=document.querySelector("body");function c(){let c="true"===e.getAttribute("aria-expanded");e.setAttribute("aria-expanded",!c),e.classList.toggle("header__button--open"),c?e.setAttribute("aria-label","Открыть главное меню"):e.setAttribute("aria-label","Закрыть главное меню"),t.classList.toggle("header__menu--open"),r.classList.toggle("header__links--open"),n.classList.toggle("header__wrapper--open"),a.classList.toggle("header--open"),l.classList.toggle("lock")}e.addEventListener("click",()=>{c(),n.classList.contains("header__wrapper--open")&&trapFocus(n)}),n.addEventListener("keydown",e=>{if(n.classList.contains("header__wrapper--open")){if(escPressed=27===e.keyCode,!escPressed)return;c()}})}function trapFocus(e){let t=e.querySelectorAll(["a[href]:not([disabled])","button:not([disabled])","textarea:not([disabled])",'input[type="text"]:not([disabled])','input[type="radio"]:not([disabled])','input[type="checkbox"]:not([disabled])',"select:not([disabled])"]),r=t[0],n=t[t.length-1];e.addEventListener("keydown",e=>{9===e.keyCode&&(e.shiftKey?document.activeElement===r&&(n.focus(),e.preventDefault()):document.activeElement===n&&(r.focus(),e.preventDefault()))})}mobileMenu();const headerToggle=()=>{let e=document.querySelector(".header"),t=0;window.addEventListener("scroll",()=>{let r=window.pageYOffset;t>r?e.classList.contains("header--fixed")||headerShow(e):t<r&&e.classList.contains("header--fixed")&&headerHide(e),t=r})},headerShow=e=>{headerFix(!0),e.classList.add("header--animating"),e.classList.add("header--fixed-show"),e.addEventListener("animationend",()=>{e.classList.remove("header--animating"),e.classList.remove("header--fixed-show")},{once:!0})},headerHide=e=>{e.classList.add("header--animating"),e.classList.add("header--fixed-hide"),e.addEventListener("animationend",()=>{e.classList.remove("header--animating"),headerFix(!1),e.classList.remove("header--fixed-hide")},{once:!0})},headerFix=e=>{document.querySelector(".header").classList.toggle("header--fixed",e)},headerToggleStarter=()=>{window.addEventListener("scroll",()=>{document.documentElement.scrollHeight>=1.2*document.documentElement.clientHeight&&headerToggle()},{once:!0})};function tabsSet(e,t,r){const n=(e,n)=>{n.focus(),n.removeAttribute("tabindex"),n.setAttribute("aria-selected","true"),e.removeAttribute("aria-selected"),e.setAttribute("tabindex","-1");let a=Array.prototype.indexOf.call(t,n),l=Array.prototype.indexOf.call(t,e);r[l].hidden=!0,r[a].hidden=!1};e.setAttribute("role","tablist"),Array.prototype.forEach.call(t,(r,a)=>{r.setAttribute("role","tab"),r.setAttribute("id","tab"+(a+1)),r.setAttribute("tabindex","-1"),r.parentNode.setAttribute("role","presentation"),r.addEventListener("click",t=>{t.preventDefault();let r=e.querySelector("[aria-selected]");t.currentTarget!==r&&n(r,t.currentTarget)}),r.addEventListener("keydown",e=>{let r=Array.prototype.indexOf.call(t,e.currentTarget),a="ArrowLeft"===e.key?r-1:"ArrowRight"===e.key?r+1:null;null!==a&&(e.preventDefault(),t[a]&&n(e.currentTarget,t[a]))})}),Array.prototype.forEach.call(r,(e,r)=>{e.setAttribute("role","tabpanel"),e.setAttribute("tabindex","-1");e.getAttribute("id");e.setAttribute("aria-labelledby",t[r].id),e.hidden=!0}),t[0].removeAttribute("tabindex"),t[0].setAttribute("aria-selected","true"),r[0].hidden=!1}window.addEventListener("scroll",()=>{document.documentElement.scrollHeight>=1.2*document.documentElement.clientHeight&&headerToggle()},{once:!0});const tabsStart=()=>{const e=document.querySelector(".placement__list"),t=document.querySelectorAll(".placement__link"),r=document.querySelectorAll(".placement__subsection");e&&t&&r&&tabsSet(e,t,r)};tabsStart();const swiper=new Swiper(".swiper--1, .swiper--2",{loop:!1,navigation:{nextEl:".swiper-button-next",prevEl:".swiper-button-prev"},breakpoints:{770:{slidesPerView:2,spaceBetween:0},1550:{slidesPerView:3,spaceBetween:0}},simulateTouch:!1}),housingGET=()=>{let e="housing.json";document.querySelector("body[data-type]")&&(e="../housing.json");let t=new XMLHttpRequest;t.open("GET",e),t.responseType="json",t.send(),t.onload=()=>{const e=t.response.housing,r=document.querySelector(".swiper"),n=document.querySelector(".form-reserve"),a=document.querySelector(".filter-catalog");r&&housingFillSwiper(e),n&&(housingSubmitForm(n),housingSelectForm(e,n)),a&&catalog(e),document.querySelector("body[data-type]")&&productFill(e)}},housingFillSwiper=e=>{const t=[document.querySelector(".subsection-placement__list-wrapper--rooms"),document.querySelector(".subsection-placement__list-wrapper--house")],r=(e,t)=>{e.innerHTML=t.map(e=>{return`<li class="swiper-slide subsection-placement__wrapper-item"><article class="subsection-placement__article"><img class="subsection-placement__picture" alt="Фотография номера" src="${e.picture_path}"><h3 class="subsection-placement__title">${e.title}</h3><p class="subsection-placement__desc">${e.desc}</p><ul class="subsection-placement__list">${r=e.options,r.map(e=>`<li class="subsection-placement__item">${e}</li>`).join("")}</ul><span class="subsection-placement__number">Кол-во номеров: ${e.number}</span><span class="subsection-placement__price">Цена за номер: ${e.price}</span><a class="subsection-placement__link" href="${linksHrefCorrect(e.link_href)}">Подробнее</a><div class="subsection-placement__in-stock"><span class="in-stock__text">Свободные номера:</span><br/><span class="in-stock__designation">${t=e.free,t?"В наличии":"Не в наличии"}</span></div></article></li>`;var t,r}).join("")};t.forEach(t=>{let n=t;if("rooms"===n.dataset.type){let t=e.filter(e=>"room"===e.type);r(n,t)}else{let t=e.filter(e=>"house"===e.type);r(n,t)}})};function housingSubmitForm(e){const t=e.querySelector('input[name="date-in"]'),r=e.querySelector('input[name="date-out"]');function n(t){const r=new FormData(t);e.checkValidity()?(console.log(Array.from(r.entries())),alert("Ваша заявка успешно отправлена!")):alert("Ваша заявка не отправленна")}e.addEventListener("submit",(function(e){e.preventDefault(),n(e.target)})),e.addEventListener("input",()=>{Number(t.value.replace(/[^0-9]/g,""))>=Number(r.value.replace(/[^0-9]/g,""))?r.setCustomValidity("Дата введена неправильно"):r.setCustomValidity("")})}const housingSelectForm=(e,t)=>{let r=t.querySelector('select[name="housing"]'),n=t.querySelector('select[name="room-select"]'),a=t.querySelector('select[name="house-select"]'),l=[n,a];const c=()=>{let e=t.querySelector('select[name="housing"]');l.forEach(t=>{t.hidden=!0;let r=t.getAttribute("data-type");e.value===r&&(t.hidden=!1)})};n.innerHTML+a.innerHTML===""&&(()=>{const t=(e,t)=>{e.innerHTML=t.map((e,t)=>`<option value="${t+1}">${e.title}</option>`).join("")};l.forEach(r=>{let n=r;if("room"===n.dataset.type){let r=e.filter(e=>"room"===e.type);t(n,r)}else{let r=e.filter(e=>"house"===e.type);t(n,r)}})})(),r.addEventListener("change",()=>{r.value;c()}),c()};housingGET();const catalog=e=>{const t=document.querySelector(".filter-catalog");t.querySelector("#filters"),catalogFill(e),t.addEventListener("input",()=>{catalogFilter(e)})},catalogFilter=e=>{const t=[...document.querySelectorAll("input:checked[name='type']")].map(e=>e.value),r=[...document.querySelectorAll("input:checked[name='balcony']")].map(e=>e.value),n=[...document.querySelectorAll("input:checked[name='bed']")].map(e=>e.value),a=[...document.querySelectorAll("input:checked[name='view']")].map(e=>e.value),l=document.querySelector("input[name='priceMin']").value,c=document.querySelector("input[name='priceMax']").value;catalogFill(e.filter(e=>(!t.length||t.includes(e.type))&&(!r.length||r.includes(e.balcony))&&(!n.length||n.includes(e.bed))&&(!a.length||a.includes(e.view))&&(!l.length||l<=Number(e.price.replace(/[^0-9]/g,"")))&&(!c.length||c>=Number(e.price.replace(/[^0-9]/g,"")))))},catalogFill=e=>{const t=document.querySelector(".catalog__list");t.innerHTML=e.map(e=>{return`<article class="catalog__article article-catalog">\n      <img\n        class="article-catalog__picture"\n        alt="Фотография номера"\n        src="${e.picture_path}"\n      />\n      <h3 class="article-catalog__title">${e.title}</h3>\n      <p class="article-catalog__desc">${e.desc}</p>\n      <ul class="article-catalog__list">${r=e.options,r.map(e=>`<li class="article-catalog__item">${e}</li>`).join("")}</ul>\n      <span class="article-catalog__number">Кол-во номеров: ${e.number}</span\n      ><span class="article-catalog__price">Цена за номер: ${e.price}</span\n      ><a class="article-catalog__link" href="${linksHrefCorrect(e.link_href)}">Подробнее</a>\n      <div class="article-catalog__in-stock">\n        <span class="in-stock__text">Свободные номера:</span><br /><span\n          class="in-stock__designation"\n          >${t=e.free,t?"В наличии":"Не в наличии"}</span\n        >\n      </div>\n    </article>`;var t,r}).join("")},scrollSet=()=>{document.querySelectorAll("*[data-scroll]").forEach(e=>{const t=e.dataset.scroll,r=document.querySelector(""+t);scrollRealization(e,r)})},scrollRealization=(e,t)=>{e.addEventListener("click",r=>{0==!t?(r.preventDefault(),t.scrollIntoView({block:"center",behavior:"smooth"})):console.log(e,t)},!1)};document.querySelectorAll("*[data-scroll]").forEach(e=>{const t=e.dataset.scroll,r=document.querySelector(""+t);scrollRealization(e,r)});const filterToggle=()=>{const e=document.querySelector(".catalog__button-filter"),t=document.querySelector(".catalog__filter");e&&e.addEventListener("click",()=>{r()});const r=()=>{let r="true"===e.getAttribute("aria-expanded");e.setAttribute("aria-expanded",!r),e.classList.toggle("catalog__button-filter--open"),t.classList.toggle("catalog__filter--open"),r?(e.setAttribute("aria-label","Открыть фильтр"),e.innerHTML="Открыть фильтр"):(e.setAttribute("aria-label","Закрыть фильтр"),e.innerHTML="Закрыть фильтр")}};filterToggle();const productFilling=e=>{const t=e[0];var r,n;document.querySelector(".product__article").innerHTML=`<img\n    class="article-product__picture"\n    alt="Фотография номера"\n    src="../${t.picture_path}"\n  />\n  <h3 class="article-product__title">${t.title}</h3>\n  <p class="article-product__desc">${t.desc}</p>\n  <ul class="article-product__list">${n=t.options,n.map(e=>`<li class="article-product__item">${e}</li>`).join("")}</ul>\n  <span class="article-product__number">Кол-во номеров: ${t.number}</span\n  ><span class="article-product__price">Цена за номер: ${t.price}</span\n  ><a class="article-product__link" data-scroll="#reserve" href="${linksHrefCorrect("/#reserve")}">Забронировать</a>\n  <div class="article-product__in-stock">\n    <span class="in-stock__text">Свободные номера:</span><br /><span\n      class="in-stock__designation"\n      >${r=t.free,r?"В наличии":"Не в наличии"}</span\n    >\n  </div>`},productFill=e=>{const t=document.querySelector("body[data-type]"),r=t.dataset.type,n=t.dataset.number,a=e.filter((e,t)=>e.type===r&&t===n-1);productFilling(a)};
+import Swiper from "./swiper-bundle.min.js";
+
+const hrefCorrection = () => {
+  const links = Array.from(document.querySelectorAll("a[href]"));
+
+  const linksFiltered = links.filter((a) => {
+    const v = a.getAttribute("href");
+
+    const b =
+      v.includes("http") ||
+      v.includes("tel") ||
+      v.includes("mailto") ||
+      a.hasAttribute("id");
+    return !b;
+  });
+  hrefCorrect(linksFiltered);
+};
+
+const hrefCorrect = (linksFiltered) => {
+  const urlRaw = document.location.href;
+
+  const linksHrefSet = (href, link) => {
+    const linkHref = link.getAttribute("href");
+
+    link.setAttribute("href", href + linkHref);
+  };
+
+  if (urlRaw.includes("src")) {
+    const href = "/src";
+
+    linksFiltered.forEach((item) => {
+      linksHrefSet(href, item);
+    });
+  }
+
+  if (urlRaw.includes("platform")) {
+    const href = "/platform/fregat";
+
+    linksFiltered.forEach((item) => {
+      linksHrefSet(href, item);
+    });
+  }
+};
+
+hrefCorrection();
+
+const linksHrefCorrect = (a) => {
+  let linkHref = a;
+
+  let href = "";
+  console.log(linkHref);
+  if (document.location.href.includes("src")) {
+    href = "/src";
+  } else {
+    return href + linkHref;
+  }
+
+  if (document.location.href.includes("platform")) {
+    href = "/platform/fregat";
+  } else {
+    return href + linkHref;
+  }
+};
+
+function mobileMenu() {
+  const mobileButton = document.querySelector("button.header__button");
+  const mobileMenu = document.querySelector("nav.header__menu");
+  const mobileLinks = document.querySelector(".header__links");
+  const headerWrapper = document.querySelector(".header__wrapper");
+  const header = document.querySelector(".header");
+  const body = document.querySelector("body");
+
+  function toggleMobileMenu() {
+    let expanded = mobileButton.getAttribute("aria-expanded") === "true";
+    mobileButton.setAttribute("aria-expanded", !expanded);
+    mobileButton.classList.toggle("header__button--open");
+    expanded
+      ? mobileButton.setAttribute("aria-label", "Открыть главное меню")
+      : mobileButton.setAttribute("aria-label", "Закрыть главное меню");
+    mobileMenu.classList.toggle("header__menu--open");
+    mobileLinks.classList.toggle("header__links--open");
+    headerWrapper.classList.toggle("header__wrapper--open");
+    header.classList.toggle("header--open");
+    body.classList.toggle("lock");
+  }
+
+  mobileButton.addEventListener("click", () => {
+    toggleMobileMenu();
+    if (headerWrapper.classList.contains("header__wrapper--open")) {
+      trapFocus(headerWrapper);
+    }
+  });
+
+  headerWrapper.addEventListener("keydown", (a) => {
+    if (headerWrapper.classList.contains("header__wrapper--open")) {
+      escPressed = a.keyCode === 27;
+      if (!escPressed) {
+        return;
+      } else {
+        toggleMobileMenu();
+      }
+    }
+  });
+}
+
+function trapFocus(element) {
+  let focusableEls = element.querySelectorAll([
+    "a[href]:not([disabled])",
+    "button:not([disabled])",
+    "textarea:not([disabled])",
+    'input[type="text"]:not([disabled])',
+    'input[type="radio"]:not([disabled])',
+    'input[type="checkbox"]:not([disabled])',
+    "select:not([disabled])",
+  ]);
+  let firstFocusableEl = focusableEls[0];
+  let lastFocusableEl = focusableEls[focusableEls.length - 1];
+
+  element.addEventListener("keydown", (e) => {
+    let isTabPressed = e.keyCode === 9;
+    if (!isTabPressed) {
+      return;
+    }
+    if (e.shiftKey) {
+      if (document.activeElement === firstFocusableEl) {
+        lastFocusableEl.focus();
+        e.preventDefault();
+      }
+    } else {
+      if (document.activeElement === lastFocusableEl) {
+        firstFocusableEl.focus();
+        e.preventDefault();
+      }
+    }
+  });
+}
+
+mobileMenu();
+
+const headerToggle = () => {
+  const headerOnScroll = () => {
+    let top = window.pageYOffset;
+    if (lastScrollTop > top) {
+      if (!header.classList.contains("header--fixed")) {
+        headerShow(header);
+      }
+    } else if (lastScrollTop < top) {
+      if (header.classList.contains("header--fixed")) {
+        headerHide(header);
+      }
+    }
+    lastScrollTop = top;
+  };
+
+  let header = document.querySelector(".header");
+  let lastScrollTop = 0;
+  window.addEventListener("scroll", headerOnScroll);
+};
+
+const headerShow = (header) => {
+  headerFix(true);
+  header.classList.add("header--animating");
+  header.classList.add("header--fixed-show");
+  header.addEventListener(
+    "animationend",
+    () => {
+      header.classList.remove("header--animating");
+      header.classList.remove("header--fixed-show");
+    },
+    { once: true }
+  );
+};
+
+const headerHide = (header) => {
+  header.classList.add("header--animating");
+  header.classList.add("header--fixed-hide");
+  header.addEventListener(
+    "animationend",
+    () => {
+      header.classList.remove("header--animating");
+      headerFix(false);
+      header.classList.remove("header--fixed-hide");
+    },
+    { once: true }
+  );
+};
+
+const headerFix = (flag) => {
+  let header = document.querySelector(".header");
+  header.classList.toggle("header--fixed", flag);
+};
+
+const headerToggleStarter = () => {
+  window.addEventListener(
+    "scroll",
+    () => {
+      if (
+        document.documentElement.scrollHeight >=
+        document.documentElement.clientHeight * 1.2
+      ) {
+        headerToggle();
+      }
+    },
+    { once: true }
+  );
+};
+headerToggleStarter();
+
+function tabsSet(tablist, tabs, panels) {
+  const switchTab = (oldTab, newTab) => {
+    newTab.focus();
+    newTab.removeAttribute("tabindex");
+    newTab.setAttribute("aria-selected", "true");
+    oldTab.removeAttribute("aria-selected");
+    oldTab.setAttribute("tabindex", "-1");
+    let index = Array.prototype.indexOf.call(tabs, newTab);
+    let oldIndex = Array.prototype.indexOf.call(tabs, oldTab);
+    panels[oldIndex].hidden = true;
+    panels[index].hidden = false;
+  };
+
+  tablist.setAttribute("role", "tablist");
+
+  Array.prototype.forEach.call(tabs, (tab, i) => {
+    tab.setAttribute("role", "tab");
+    tab.setAttribute("id", "tab" + (i + 1));
+    tab.setAttribute("tabindex", "-1");
+    tab.parentNode.setAttribute("role", "presentation");
+
+    tab.addEventListener("click", (e) => {
+      e.preventDefault();
+      let currentTab = tablist.querySelector("[aria-selected]");
+      if (e.currentTarget !== currentTab) {
+        switchTab(currentTab, e.currentTarget);
+      }
+    });
+
+    tab.addEventListener("keydown", (e) => {
+      let index = Array.prototype.indexOf.call(tabs, e.currentTarget);
+      let dir =
+        e.key === "ArrowLeft"
+          ? index - 1
+          : e.key === "ArrowRight"
+          ? index + 1
+          : null;
+      if (dir !== null) {
+        e.preventDefault();
+        tabs[dir] ? switchTab(e.currentTarget, tabs[dir]) : void 0;
+      }
+    });
+  });
+
+  Array.prototype.forEach.call(panels, (panel, i) => {
+    panel.setAttribute("role", "tabpanel");
+    panel.setAttribute("tabindex", "-1");
+    let id = panel.getAttribute("id");
+    panel.setAttribute("aria-labelledby", tabs[i].id);
+    panel.hidden = true;
+  });
+
+  tabs[0].removeAttribute("tabindex");
+  tabs[0].setAttribute("aria-selected", "true");
+  panels[0].hidden = false;
+}
+
+const tabsStart = () => {
+  const tablist = document.querySelector(".placement__list");
+  const tabs = document.querySelectorAll(".placement__link");
+  const panels = document.querySelectorAll(".placement__subsection");
+
+  if (tablist && tabs && panels) {
+    tabsSet(tablist, tabs, panels);
+  }
+};
+
+tabsStart();
+
+const swiper = new Swiper(".swiper--1, .swiper--2", {
+  loop: false,
+  navigation: {
+    nextEl: ".swiper-button-next",
+    prevEl: ".swiper-button-prev",
+  },
+  breakpoints: {
+    770: {
+      slidesPerView: 2,
+      spaceBetween: 0,
+    },
+    1550: {
+      slidesPerView: 3,
+      spaceBetween: 0,
+    },
+  },
+  simulateTouch: false,
+});
+
+const housingGET = () => {
+  let json = "housing.json";
+
+  if (document.querySelector("body[data-type]")) {
+    json = "../housing.json";
+  }
+
+  let request = new XMLHttpRequest();
+  request.open("GET", json);
+  request.responseType = "json";
+  request.send();
+
+  request.onload = () => {
+    const requestData = request.response;
+    const data = requestData.housing;
+    const swiperEl = document.querySelector(".swiper");
+    const formEl = document.querySelector(".form-reserve");
+    const filterEl = document.querySelector(".filter-catalog");
+
+    if (swiperEl) {
+      housingFillSwiper(data);
+    }
+
+    if (formEl) {
+      housingSubmitForm(formEl);
+      housingSelectForm(data, formEl);
+    }
+
+    if (filterEl) {
+      catalog(data);
+    }
+
+    if (document.querySelector("body[data-type]")) {
+      productFill(data);
+    }
+  };
+};
+
+const housingFillSwiper = (data) => {
+  const housingListArr = [
+    document.querySelector(".subsection-placement__list-wrapper--rooms"),
+    document.querySelector(".subsection-placement__list-wrapper--house"),
+  ];
+
+  const optionFill = (dataOption) => {
+    const returnedOptions = dataOption
+      .map((a) => `<li class="subsection-placement__item">${a}</li>`)
+      .join("");
+
+    return returnedOptions;
+  };
+
+  const housingArrFill = (list, arr) => {
+    const inStock = (dataInStock) => {
+      if (dataInStock) {
+        return "В наличии";
+      } else {
+        return "Не в наличии";
+      }
+    };
+
+    list.innerHTML = arr
+      .map(
+        (a) =>
+          `<li class="swiper-slide subsection-placement__wrapper-item"><article class="subsection-placement__article"><img class="subsection-placement__picture" alt="Фотография номера" src="${
+            a.picture_path
+          }"><h3 class="subsection-placement__title">${
+            a.title
+          }</h3><p class="subsection-placement__desc">${
+            a.desc
+          }</p><ul class="subsection-placement__list">${optionFill(
+            a.options
+          )}</ul><span class="subsection-placement__number">Кол-во номеров: ${
+            a.number
+          }</span><span class="subsection-placement__price">Цена за номер: ${
+            a.price
+          }</span><a class="subsection-placement__link" href="${linksHrefCorrect(
+            a.link_href
+          )}">Подробнее</a><div class="subsection-placement__in-stock"><span class="in-stock__text">Свободные номера:</span><br/><span class="in-stock__designation">${inStock(
+            a.free
+          )}</span></div></article></li>`
+      )
+      .join("");
+  };
+  housingListArr.forEach((element) => {
+    let list = element;
+
+    if (list.dataset.type === "rooms") {
+      let result = data.filter((element) => element.type === "room");
+      housingArrFill(list, result);
+    } else {
+      let result = data.filter((element) => element.type === "house");
+      housingArrFill(list, result);
+    }
+  });
+};
+
+function housingSubmitForm(form) {
+  const formInputDateIn = form.querySelector('input[name="date-in"]');
+  const formInputDateOut = form.querySelector('input[name="date-out"]');
+
+  function onSuccess() {
+    alert("Ваша заявка успешно отправлена!");
+  }
+
+  function onError() {
+    alert("Ваша заявка не отправленна");
+  }
+
+  function serializeForm(formNode) {
+    const data = new FormData(formNode);
+    if (checkValid()) {
+      console.log(Array.from(data.entries()));
+      onSuccess();
+    } else {
+      onError();
+    }
+  }
+
+  function checkValid() {
+    const formValid = form.checkValidity();
+    return formValid;
+  }
+
+  const checkDate = () => {
+    let numberDateIn = Number(formInputDateIn.value.replace(/[^0-9]/g, ""));
+    let numberDateOut = Number(formInputDateOut.value.replace(/[^0-9]/g, ""));
+    if (numberDateIn >= numberDateOut) {
+      formInputDateOut.setCustomValidity("Дата введена неправильно");
+    } else {
+      formInputDateOut.setCustomValidity("");
+    }
+  };
+
+  function handleFormSubmit(event) {
+    event.preventDefault();
+    serializeForm(event.target);
+  }
+
+  form.addEventListener("submit", handleFormSubmit);
+  form.addEventListener("input", checkDate);
+}
+
+const housingSelectForm = (data, form) => {
+  let formSelectSwitcher = form.querySelector('select[name="housing"]');
+
+  let formSelectRoom = form.querySelector('select[name="room-select"]');
+  let formSelectHouse = form.querySelector('select[name="house-select"]');
+
+  let formSelectArray = [formSelectRoom, formSelectHouse];
+
+  const housingFillSelect = () => {
+    const selectArrFill = (select, arr) => {
+      select.innerHTML = arr
+        .map((a, index) => `<option value="${index + 1}">${a.title}</option>`)
+        .join("");
+    };
+
+    formSelectArray.forEach((element) => {
+      let select = element;
+
+      if (select.dataset.type === "room") {
+        let result = data.filter((element) => element.type === "room");
+        selectArrFill(select, result);
+      } else {
+        let result = data.filter((element) => element.type === "house");
+        selectArrFill(select, result);
+      }
+    });
+  };
+
+  const housingSelectToogle = () => {
+    let selectToggle = form.querySelector('select[name="housing"]');
+    formSelectArray.forEach((item) => {
+      item.hidden = true;
+      let optionAttribute = item.getAttribute("data-type");
+
+      if (selectToggle.value === optionAttribute) {
+        item.hidden = false;
+      }
+    });
+  };
+
+  if (formSelectRoom.innerHTML + formSelectHouse.innerHTML === "") {
+    housingFillSelect();
+  }
+
+  formSelectSwitcher.addEventListener("change", () => {
+    const selectValue = formSelectSwitcher.value;
+
+    housingSelectToogle(selectValue);
+  });
+
+  housingSelectToogle();
+};
+
+housingGET();
+
+const catalog = (data) => {
+  const filter = document.querySelector(".filter-catalog");
+
+  filter.querySelector("#filters");
+
+  catalogFill(data);
+
+  filter.addEventListener("input", () => {
+    catalogFilter(data);
+  });
+};
+
+const catalogFilter = (data) => {
+  const filterCheckboxType = [
+    ...document.querySelectorAll("input:checked[name='type']"),
+  ].map((a) => a.value);
+  const filterCheckboxBalcony = [
+    ...document.querySelectorAll("input:checked[name='balcony']"),
+  ].map((a) => a.value);
+  const filterCheckboxBed = [
+    ...document.querySelectorAll("input:checked[name='bed']"),
+  ].map((a) => a.value);
+  const filterCheckboxView = [
+    ...document.querySelectorAll("input:checked[name='view']"),
+  ].map((a) => a.value);
+  const filterPriceMin = document.querySelector("input[name='priceMin']").value;
+  const filterPriceMax = document.querySelector("input[name='priceMax']").value;
+
+  catalogFill(
+    data.filter(
+      (a) =>
+        (!filterCheckboxType.length || filterCheckboxType.includes(a.type)) &&
+        (!filterCheckboxBalcony.length ||
+          filterCheckboxBalcony.includes(a.balcony)) &&
+        (!filterCheckboxBed.length || filterCheckboxBed.includes(a.bed)) &&
+        (!filterCheckboxView.length || filterCheckboxView.includes(a.view)) &&
+        (!filterPriceMin.length ||
+          filterPriceMin <= Number(a.price.replace(/[^0-9]/g, ""))) &&
+        (!filterPriceMax.length ||
+          filterPriceMax >= Number(a.price.replace(/[^0-9]/g, "")))
+    )
+  );
+};
+
+const catalogFill = (catalogData) => {
+  const list = document.querySelector(".catalog__list");
+
+  const optionFill = (dataOption) => {
+    const returnedOptions = dataOption
+      .map((a) => `<li class="article-catalog__item">${a}</li>`)
+      .join("");
+
+    return returnedOptions;
+  };
+
+  const inStock = (dataInStock) => {
+    if (dataInStock) {
+      return "В наличии";
+    } else {
+      return "Не в наличии";
+    }
+  };
+
+  list.innerHTML = catalogData
+    .map(
+      (a) => `<article class="catalog__article article-catalog">
+      <img
+        class="article-catalog__picture"
+        alt="Фотография номера"
+        src="${a.picture_path}"
+      />
+      <h3 class="article-catalog__title">${a.title}</h3>
+      <p class="article-catalog__desc">${a.desc}</p>
+      <ul class="article-catalog__list">${optionFill(a.options)}</ul>
+      <span class="article-catalog__number">Кол-во номеров: ${a.number}</span
+      ><span class="article-catalog__price">Цена за номер: ${a.price}</span
+      ><a class="article-catalog__link" href="${linksHrefCorrect(
+        a.link_href
+      )}">Подробнее</a>
+      <div class="article-catalog__in-stock">
+        <span class="in-stock__text">Свободные номера:</span><br /><span
+          class="in-stock__designation"
+          >${inStock(a.free)}</span
+        >
+      </div>
+    </article>`
+    )
+    .join("");
+};
+
+const scrollSet = () => {
+  const links = document.querySelectorAll("*[data-scroll]");
+
+  links.forEach((item) => {
+    const goalId = item.dataset.scroll;
+    const goal = document.querySelector(`${goalId}`);
+    scrollRealization(item, goal);
+  });
+};
+
+const scrollRealization = (link, goal) => {
+  link.addEventListener(
+    "click",
+    (event) => {
+      if (!goal == false) {
+        event.preventDefault();
+        goal.scrollIntoView({ block: "center", behavior: "smooth" });
+      } else {
+        console.log(link, goal);
+      }
+    },
+    false
+  );
+};
+
+scrollSet();
+
+const filterToggle = () => {
+  const filterButton = document.querySelector(".catalog__button-filter");
+  const filterElement = document.querySelector(".catalog__filter");
+
+  if (filterButton) {
+    filterButton.addEventListener("click", () => {
+      toggleFilter();
+    });
+  }
+
+  const toggleFilter = () => {
+    let expanded = filterButton.getAttribute("aria-expanded") === "true";
+    filterButton.setAttribute("aria-expanded", !expanded);
+    filterButton.classList.toggle("catalog__button-filter--open");
+    filterElement.classList.toggle("catalog__filter--open");
+
+    if (expanded) {
+      filterButton.setAttribute("aria-label", "Открыть фильтр");
+      filterButton.innerHTML = "Открыть фильтр";
+    } else {
+      filterButton.setAttribute("aria-label", "Закрыть фильтр");
+      filterButton.innerHTML = "Закрыть фильтр";
+    }
+  };
+};
+
+filterToggle();
+
+const productFilling = (arr) => {
+  const data = arr[0];
+
+  const productElement = document.querySelector(".product__article");
+
+  const optionFill = (dataOption) => {
+    const returnedOptions = dataOption
+      .map((a) => `<li class="article-product__item">${a}</li>`)
+      .join("");
+
+    return returnedOptions;
+  };
+
+  const inStock = (dataInStock) => {
+    if (dataInStock) {
+      return "В наличии";
+    } else {
+      return "Не в наличии";
+    }
+  };
+
+  const hrefReserve = "/#reserve";
+
+  productElement.innerHTML = `<img
+    class="article-product__picture"
+    alt="Фотография номера"
+    src="../${data.picture_path}"
+  />
+  <h3 class="article-product__title">${data.title}</h3>
+  <p class="article-product__desc">${data.desc}</p>
+  <ul class="article-product__list">${optionFill(data.options)}</ul>
+  <span class="article-product__number">Кол-во номеров: ${data.number}</span
+  ><span class="article-product__price">Цена за номер: ${data.price}</span
+  ><a class="article-product__link" data-scroll="#reserve" href="${linksHrefCorrect(
+    hrefReserve
+  )}">Забронировать</a>
+  <div class="article-product__in-stock">
+    <span class="in-stock__text">Свободные номера:</span><br /><span
+      class="in-stock__designation"
+      >${inStock(data.free)}</span
+    >
+  </div>`;
+};
+
+const productFill = (data) => {
+  const body = document.querySelector("body[data-type]");
+
+  const productType = body.dataset.type;
+  const productNumber = body.dataset.number;
+
+  const productArray = data.filter(
+    (a, index) => a.type === productType && index === productNumber - 1
+  );
+
+  productFilling(productArray);
+};
