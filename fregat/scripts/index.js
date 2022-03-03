@@ -48,11 +48,8 @@ const linksHrefCorrect = (a) => {
   let linkHref = a;
 
   let href = "";
-  console.log(linkHref);
   if (document.location.href.includes("src")) {
     href = "/src";
-  } else {
-    return href + linkHref;
   }
 
   if (document.location.href.includes("platform")) {
