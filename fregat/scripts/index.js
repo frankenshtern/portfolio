@@ -54,9 +54,8 @@ const linksHrefCorrect = (a) => {
 
   if (document.location.href.includes("platform")) {
     href = "/platform/fregat";
-  } else {
-    return href + linkHref;
   }
+  return href + linkHref;
 };
 
 function mobileMenu() {
